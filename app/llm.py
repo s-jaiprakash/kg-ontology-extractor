@@ -1,6 +1,6 @@
 import re
 
-from openai import OpenAI
+from openai import AzureOpenAI, OpenAI
 
 from app.config import settings
 from app.models import (
@@ -15,17 +15,25 @@ from app.models import (
 )
 from app.storage import resolve_citation_offsets
 
+
 class LLMError(RuntimeError):
     """Raised when an LLM call fails after its retry."""
 
 
-_client: OpenAI | None = None
+_client: OpenAI | AzureOpenAI | None = None
 
 
-def get_client() -> OpenAI:
+def get_client() -> OpenAI | AzureOpenAI:
     global _client
     if _client is None:
-        _client = OpenAI(api_key=settings.openai_api_key)
+        if settings.llm_provider == "azure_openai":
+            _client = AzureOpenAI(
+                api_key=settings.azure_openai_api_key,
+                azure_endpoint=settings.azure_openai_endpoint,
+                api_version=settings.azure_openai_api_version,
+            )
+        else:
+            _client = OpenAI(api_key=settings.openai_api_key)
     return _client
 
 
@@ -73,7 +81,7 @@ UPPER_SNAKE_CASE for relationship types (e.g. "WORKS_FOR")."""
 def generate_ontology(
     documents: list[Document], model: str | None = None
 ) -> tuple[list[NodeLabel], list[RelationshipType]]:
-    model = model or settings.openai_model
+    model = model or settings.default_llm_model
     doc_blocks = "\n\n".join(
         f"### document_id: {doc.id}\ncategory: {doc.category}\n\n{doc.content}" for doc in documents
     )
@@ -124,7 +132,7 @@ def generate_ontology(
 def extract_entities_llm(
     content: str, node_labels: list[NodeLabel], model: str | None = None
 ) -> list[Entity]:
-    model = model or settings.openai_model
+    model = model or settings.default_llm_model
     allowed = [label.name for label in node_labels]
     system_prompt = (
         "You are an information-extraction system. Extract every entity mention from the "
@@ -162,7 +170,7 @@ def extract_relationships_llm(
     entities: list[Entity],
     model: str | None = None,
 ) -> tuple[list[Relationship], int]:
-    model = model or settings.openai_model
+    model = model or settings.default_llm_model
     allowed_types = {rt.name: rt for rt in relationship_types}
     entity_ids = {e.id for e in entities}
     entity_lines = "\n".join(f"- id={e.id}, text={e.text!r}, label={e.label}" for e in entities)

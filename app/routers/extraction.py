@@ -25,10 +25,10 @@ def _require_approved_ontology():
 def get_options():
     return ExtractionOptions(
         entity_methods=[
-            {"id": "llm", "label": f"LLM ({settings.openai_model})"},
+            {"id": "llm", "label": f"LLM ({settings.default_llm_model})"},
             {"id": "ner", "label": f"Local NER ({settings.ner_model})"},
         ],
-        relationship_models=[{"id": "llm", "label": f"LLM ({settings.openai_model})"}],
+        relationship_models=[{"id": "llm", "label": f"LLM ({settings.default_llm_model})"}],
     )
 
 
@@ -47,7 +47,7 @@ def extract_entities(req: EntityExtractionRequest):
         except llm.LLMError as exc:
             raise HTTPException(502, str(exc)) from exc
         unmapped = []
-        model_name = req.model or settings.openai_model
+        model_name = req.model or settings.default_llm_model
 
     result = EntityExtractionResult(
         entities=entities,
@@ -78,7 +78,7 @@ def extract_relationships(req: RelationshipExtractionRequest):
         raise HTTPException(502, str(exc)) from exc
     result = RelationshipExtractionResult(
         relationships=relationships,
-        model=req.model or settings.openai_model,
+        model=req.model or settings.default_llm_model,
         dropped_count=dropped,
         generated_at=storage.now(),
     )

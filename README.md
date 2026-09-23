@@ -19,13 +19,27 @@ under `data/` — no database.
 uv sync
 uv run python -m spacy download en_core_web_sm   # one-time, for local NER
 
-cp .env.example .env   # then set OPENAI_API_KEY
+cp .env.example .env   # then fill in your LLM provider credentials, see below
 
 cd frontend
 npm install
 npm run build           # compiles TypeScript into ../static/js
 cd ..
 ```
+
+### LLM provider
+
+The app talks to either standard OpenAI or Azure OpenAI, chosen via `LLM_PROVIDER` in `.env`:
+
+- `LLM_PROVIDER=openai` (default) — set `OPENAI_API_KEY` and optionally `OPENAI_MODEL`
+  (default `gpt-4o-mini`).
+- `LLM_PROVIDER=azure_openai` — set `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_ENDPOINT` (e.g.
+  `https://<resource>.openai.azure.com`), `AZURE_OPENAI_DEPLOYMENT` (your deployment name — used
+  as the model for every call), and optionally `AZURE_OPENAI_API_VERSION` (default
+  `2024-08-01-preview`). The deployment must be a model version that supports structured outputs
+  (e.g. `gpt-4o-2024-08-06` or later).
+
+See `.env.example` for the full list of variables.
 
 ## Run
 
