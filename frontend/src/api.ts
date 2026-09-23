@@ -20,7 +20,12 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     let detail = res.statusText;
     try {
       const body = await res.json();
-      detail = body.detail ?? detail;
+      if (typeof body.detail === "string") {
+        detail = body.detail;
+      } else if (Array.isArray(body.detail)) {
+        // FastAPI validation errors: a list of {loc, msg, ...} objects.
+        detail = body.detail.map((d: { msg?: string }) => d.msg ?? JSON.stringify(d)).join("; ");
+      }
     } catch {
       // ignore non-JSON error bodies
     }
@@ -73,6 +78,7 @@ export const api = {
     }),
   approveOntology: () => request<Ontology>("/api/ontology/approve", { method: "POST" }),
   resetOntology: () => request<Ontology>("/api/ontology/reset", { method: "POST" }),
+  importOntology: (data: unknown) => request<Ontology>("/api/ontology/import", json(data)),
 
   // Extraction
   getExtractionOptions: () => request<ExtractionOptions>("/api/extraction/options"),

@@ -67,6 +67,36 @@ def update_ontology(req: OntologyUpdateRequest):
     return _with_ner_flags(existing)
 
 
+@router.post("/import", response_model=Ontology)
+def import_ontology(req: OntologyUpdateRequest):
+    existing = storage.load_ontology()
+    if existing and existing.status == "approved":
+        raise HTTPException(409, "Ontology is approved; reset it before importing")
+    if not req.node_labels and not req.relationship_types:
+        raise HTTPException(400, "Imported ontology has no node labels or relationship types")
+
+    node_labels = [
+        label.model_copy(update={"id": label.id or llm.slugify("label", label.name)})
+        for label in req.node_labels
+    ]
+    relationship_types = [
+        rel.model_copy(update={"id": rel.id or llm.slugify("rel", rel.name)})
+        for rel in req.relationship_types
+    ]
+
+    now = storage.now()
+    ontology = Ontology(
+        status="draft",
+        node_labels=node_labels,
+        relationship_types=relationship_types,
+        created_at=existing.created_at if existing else now,
+        updated_at=now,
+        approved_at=None,
+    )
+    storage.save_ontology(ontology)
+    return _with_ner_flags(ontology)
+
+
 @router.post("/approve", response_model=Ontology)
 def approve_ontology():
     ontology = storage.load_ontology()

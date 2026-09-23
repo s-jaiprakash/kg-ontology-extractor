@@ -3,6 +3,9 @@ import { showStatus } from "./state.js";
 import { NodeLabel, Ontology, RelationshipType } from "./types.js";
 
 const generateBtn = document.getElementById("generate-btn") as HTMLButtonElement;
+const importBtn = document.getElementById("import-btn") as HTMLButtonElement;
+const exportBtn = document.getElementById("export-btn") as HTMLButtonElement;
+const importFileInput = document.getElementById("import-file-input") as HTMLInputElement;
 const saveBtn = document.getElementById("save-btn") as HTMLButtonElement;
 const approveBtn = document.getElementById("approve-btn") as HTMLButtonElement;
 const resetBtn = document.getElementById("reset-btn") as HTMLButtonElement;
@@ -44,12 +47,14 @@ function setEditable(disabled: boolean): void {
   addRelBtn.disabled = disabled;
   saveBtn.hidden = disabled;
   generateBtn.disabled = disabled;
+  importBtn.disabled = disabled;
   approveBtn.hidden = disabled;
   resetBtn.hidden = !disabled;
   continueBtn.hidden = !disabled;
 }
 
 function render(): void {
+  exportBtn.disabled = !ontology;
   if (!ontology) {
     emptyState.hidden = false;
     editorArea.hidden = true;
@@ -221,6 +226,42 @@ resetBtn.addEventListener("click", async () => {
 
 continueBtn.addEventListener("click", () => {
   window.location.href = "extraction.html";
+});
+
+exportBtn.addEventListener("click", () => {
+  if (!ontology) return;
+  const blob = new Blob([JSON.stringify(ontology, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "ontology.json";
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+importBtn.addEventListener("click", () => importFileInput.click());
+
+importFileInput.addEventListener("change", async () => {
+  const file = importFileInput.files?.[0];
+  importFileInput.value = "";
+  if (!file) return;
+
+  let data: unknown;
+  try {
+    data = JSON.parse(await file.text());
+  } catch {
+    showStatus(statusEl, "That file isn't valid JSON.", "error");
+    return;
+  }
+
+  try {
+    showStatus(statusEl, "Importing ontology…", "info");
+    ontology = await api.importOntology(data);
+    showStatus(statusEl, "Ontology imported.", "success");
+    render();
+  } catch (err) {
+    showStatus(statusEl, err instanceof ApiRequestError ? err.message : String(err), "error");
+  }
 });
 
 loadOntology();

@@ -5,6 +5,8 @@ A knowledge-graph ontology and entity/relationship extraction tool.
 1. **Documents** — upload `.md` files or paste markdown content, each tagged with a category.
 2. **Ontology** — generate a proposed ontology (node labels + relationship types, each backed
    by a citation into the source text) from your documents using an LLM, edit it, and approve it.
+   You can also export the ontology to a JSON file or import one (e.g. hand-authored, or
+   exported from another run) in place of generating it.
 3. **Extraction** — paste content, extract entities (via the LLM or a local spaCy NER pipeline)
    and relationships constrained to the approved ontology, and view the resulting knowledge
    graph as JSON and as a table.

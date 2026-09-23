@@ -23,8 +23,11 @@
         Generate a proposed ontology from your documents using an LLM, edit the node labels and
         relationship types below, then approve it to move on to extraction.
       </p>
-      <div class="actions" style="justify-content: flex-start">
+      <div class="actions" style="justify-content: flex-start; flex-wrap: wrap">
         <button id="generate-btn">Generate ontology from documents</button>
+        <button id="import-btn" class="secondary">Import from JSON</button>
+        <button id="export-btn" class="secondary" disabled>Export to JSON</button>
+        <input id="import-file-input" type="file" accept="application/json,.json" hidden />
       </div>
       <div id="status" class="status" hidden></div>
     </section>

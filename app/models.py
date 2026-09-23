@@ -48,7 +48,7 @@ class Citation(BaseModel):
 
 
 class NodeLabel(BaseModel):
-    id: str
+    id: str = ""
     name: str
     description: str = ""
     citations: list[Citation] = Field(default_factory=list)
@@ -56,7 +56,7 @@ class NodeLabel(BaseModel):
 
 
 class RelationshipType(BaseModel):
-    id: str
+    id: str = ""
     name: str
     description: str = ""
     source_labels: list[str] = Field(default_factory=list)
