@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ontology Extractor — Documents</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header>
+    <h1>Ontology Extractor</h1>
+    <nav>
+      <a href="index.html" class="active">1. Documents</a>
+      <a href="ontology.html">2. Ontology</a>
+      <a href="extraction.html">3. Extraction</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="panel">
+      <h2>Add a document</h2>
+      <div class="field">
+        <label for="category">Category</label>
+        <input id="category" type="text" placeholder="e.g. Meeting Notes, Product Spec, Legal" />
+      </div>
+
+      <div class="field">
+        <label for="paste-content">Paste markdown content</label>
+        <textarea id="paste-content" placeholder="# Paste your markdown here..."></textarea>
+        <div class="actions">
+          <button id="add-paste-btn">Add pasted document</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="file-input">Or upload .md file(s)</label>
+        <input id="file-input" type="file" accept=".md,text/markdown,text/plain" multiple />
+        <div class="actions">
+          <button id="add-file-btn" class="secondary">Add uploaded file(s)</button>
+        </div>
+      </div>
+
+      <div id="status" class="status" hidden></div>
+    </section>
+
+    <section class="panel">
+      <h2>Documents added</h2>
+      <div id="document-list"></div>
+    </section>
+
+    <div class="actions">
+      <button id="continue-btn" disabled>Continue to Ontology →</button>
+    </div>
+  </main>
+
+  <script type="module" src="js/home.js"></script>
+</body>
+</html>

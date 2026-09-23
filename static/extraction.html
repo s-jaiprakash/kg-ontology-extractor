@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ontology Extractor — Extraction</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header>
+    <h1>Ontology Extractor</h1>
+    <nav>
+      <a href="index.html">1. Documents</a>
+      <a href="ontology.html">2. Ontology</a>
+      <a href="extraction.html" class="active">3. Extraction</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="panel">
+      <h2>Content to extract from</h2>
+      <div class="field">
+        <label for="extraction-content">Paste markdown content</label>
+        <textarea id="extraction-content" placeholder="# Paste content to extract entities and relationships from..."></textarea>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="entity-method">Entity extraction method</label>
+          <select id="entity-method"></select>
+        </div>
+        <div class="field">
+          <button id="extract-entities-btn">Extract entities</button>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="rel-model">Relationship extraction model</label>
+          <select id="rel-model"></select>
+        </div>
+        <div class="field">
+          <button id="extract-rels-btn" disabled>Extract relationships</button>
+        </div>
+      </div>
+
+      <div id="unmapped-note" class="status status-info" hidden></div>
+      <div id="status" class="status" hidden></div>
+    </section>
+
+    <section class="panel">
+      <h2>Entities</h2>
+      <table id="entities-table">
+        <thead>
+          <tr><th>Text</th><th>Label</th><th>Method</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section class="panel">
+      <h2>Relationships</h2>
+      <table id="rels-table">
+        <thead>
+          <tr><th>Source</th><th>Type</th><th>Target</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section class="panel">
+      <h2>Knowledge graph (JSON)</h2>
+      <pre id="graph-json">{}</pre>
+    </section>
+  </main>
+
+  <script type="module" src="js/extraction.js"></script>
+</body>
+</html>
