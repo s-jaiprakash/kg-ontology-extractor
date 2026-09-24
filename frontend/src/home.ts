@@ -1,5 +1,5 @@
 import { api, ApiRequestError } from "./api.js";
-import { formatTimestamp, showStatus } from "./state.js";
+import { formatTimestamp, navigateTo, showStatus } from "./state.js";
 import { DocumentOut } from "./types.js";
 
 const categoryInput = document.getElementById("category") as HTMLInputElement;
@@ -8,8 +8,8 @@ const fileInput = document.getElementById("file-input") as HTMLInputElement;
 const addPasteBtn = document.getElementById("add-paste-btn") as HTMLButtonElement;
 const addFileBtn = document.getElementById("add-file-btn") as HTMLButtonElement;
 const documentList = document.getElementById("document-list") as HTMLElement;
-const statusEl = document.getElementById("status") as HTMLElement;
-const continueBtn = document.getElementById("continue-btn") as HTMLButtonElement;
+const statusEl = document.getElementById("documents-status") as HTMLElement;
+const continueBtn = document.getElementById("documents-continue-btn") as HTMLButtonElement;
 
 function requireCategory(): string | null {
   const category = categoryInput.value.trim();
@@ -102,7 +102,9 @@ addFileBtn.addEventListener("click", async () => {
 });
 
 continueBtn.addEventListener("click", () => {
-  window.location.href = "ontology.html";
+  navigateTo("ontology");
 });
 
-refreshDocuments();
+export function activate(): void {
+  refreshDocuments();
+}

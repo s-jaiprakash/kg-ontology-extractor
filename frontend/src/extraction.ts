@@ -10,7 +10,7 @@ const relModelSelect = document.getElementById("rel-model") as HTMLSelectElement
 const extractEntitiesBtn = document.getElementById("extract-entities-btn") as HTMLButtonElement;
 const extractRelsBtn = document.getElementById("extract-rels-btn") as HTMLButtonElement;
 const exportGraphBtn = document.getElementById("export-graph-btn") as HTMLButtonElement;
-const statusEl = document.getElementById("status") as HTMLElement;
+const statusEl = document.getElementById("extraction-status") as HTMLElement;
 const entitiesTableBody = document.querySelector("#entities-table tbody") as HTMLElement;
 const relsTableBody = document.querySelector("#rels-table tbody") as HTMLElement;
 const graphJson = document.getElementById("graph-json") as HTMLElement;
@@ -144,11 +144,11 @@ extractRelsBtn.addEventListener("click", async () => {
   }
 });
 
-async function init(): Promise<void> {
+export async function activate(): Promise<void> {
   const ok = await assertOntologyApproved();
   if (!ok) return;
-  await populateOptions();
-  extractRelsBtn.disabled = true;
+  if (entityMethodSelect.options.length === 0) {
+    await populateOptions();
+  }
+  extractRelsBtn.disabled = lastEntities.length === 0;
 }
-
-init();

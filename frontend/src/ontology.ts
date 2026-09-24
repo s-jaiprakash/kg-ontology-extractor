@@ -1,5 +1,5 @@
 import { api, ApiRequestError } from "./api.js";
-import { showStatus } from "./state.js";
+import { navigateTo, showStatus } from "./state.js";
 import { NodeLabel, Ontology, RelationshipType } from "./types.js";
 
 const generateBtn = document.getElementById("generate-btn") as HTMLButtonElement;
@@ -9,10 +9,10 @@ const importFileInput = document.getElementById("import-file-input") as HTMLInpu
 const saveBtn = document.getElementById("save-btn") as HTMLButtonElement;
 const approveBtn = document.getElementById("approve-btn") as HTMLButtonElement;
 const resetBtn = document.getElementById("reset-btn") as HTMLButtonElement;
-const continueBtn = document.getElementById("continue-btn") as HTMLButtonElement;
+const continueBtn = document.getElementById("ontology-continue-btn") as HTMLButtonElement;
 const addLabelBtn = document.getElementById("add-label-btn") as HTMLButtonElement;
 const addRelBtn = document.getElementById("add-rel-btn") as HTMLButtonElement;
-const statusEl = document.getElementById("status") as HTMLElement;
+const statusEl = document.getElementById("ontology-status") as HTMLElement;
 const statusBanner = document.getElementById("status-banner") as HTMLElement;
 const labelsContainer = document.getElementById("labels-container") as HTMLElement;
 const relsContainer = document.getElementById("rels-container") as HTMLElement;
@@ -155,6 +155,10 @@ async function loadOntology(): Promise<void> {
   render();
 }
 
+export function activate(): void {
+  loadOntology();
+}
+
 generateBtn.addEventListener("click", async () => {
   try {
     showStatus(statusEl, "Generating ontology from your documents…", "info");
@@ -225,7 +229,7 @@ resetBtn.addEventListener("click", async () => {
 });
 
 continueBtn.addEventListener("click", () => {
-  window.location.href = "extraction.html";
+  navigateTo("extraction");
 });
 
 exportBtn.addEventListener("click", () => {
@@ -263,5 +267,3 @@ importFileInput.addEventListener("change", async () => {
     showStatus(statusEl, err instanceof ApiRequestError ? err.message : String(err), "error");
   }
 });
-
-loadOntology();

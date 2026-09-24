@@ -3,56 +3,169 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ontology Extractor — Documents</title>
+  <title>Ontology Extractor</title>
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
   <header>
     <h1>Ontology Extractor</h1>
     <nav>
-      <a href="index.html" class="active">1. Documents</a>
-      <a href="ontology.html">2. Ontology</a>
-      <a href="extraction.html">3. Extraction</a>
+      <a href="#documents" data-view="documents">1. Documents</a>
+      <a href="#ontology" data-view="ontology">2. Ontology</a>
+      <a href="#extraction" data-view="extraction">3. Extraction</a>
     </nav>
   </header>
 
   <main>
-    <section class="panel">
-      <h2>Add a document</h2>
-      <div class="field">
-        <label for="category">Category</label>
-        <input id="category" type="text" placeholder="e.g. Meeting Notes, Product Spec, Legal" />
-      </div>
+    <div id="view-documents" class="view">
+      <section class="panel">
+        <h2>Add a document</h2>
+        <div class="field">
+          <label for="category">Category</label>
+          <input id="category" type="text" placeholder="e.g. Meeting Notes, Product Spec, Legal" />
+        </div>
 
-      <div class="field">
-        <label for="paste-content">Paste markdown content</label>
-        <textarea id="paste-content" placeholder="# Paste your markdown here..."></textarea>
+        <div class="field">
+          <label for="paste-content">Paste markdown content</label>
+          <textarea id="paste-content" placeholder="# Paste your markdown here..."></textarea>
+          <div class="actions">
+            <button id="add-paste-btn">Add pasted document</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="file-input">Or upload .md file(s)</label>
+          <input id="file-input" type="file" accept=".md,text/markdown,text/plain" multiple />
+          <div class="actions">
+            <button id="add-file-btn" class="secondary">Add uploaded file(s)</button>
+          </div>
+        </div>
+
+        <div id="documents-status" class="status" hidden></div>
+      </section>
+
+      <section class="panel">
+        <h2>Documents added</h2>
+        <div id="document-list"></div>
+      </section>
+
+      <div class="actions">
+        <button id="documents-continue-btn" disabled>Continue to Ontology →</button>
+      </div>
+    </div>
+
+    <div id="view-ontology" class="view" hidden>
+      <section class="panel">
+        <h2>Ontology</h2>
+        <p class="muted">
+          Generate a proposed ontology from your documents using an LLM, edit the node labels and
+          relationship types below, then approve it to move on to extraction.
+        </p>
+        <div class="actions" style="justify-content: flex-start; flex-wrap: wrap">
+          <button id="generate-btn">Generate ontology from documents</button>
+          <button id="import-btn" class="secondary">Import from JSON</button>
+          <button id="export-btn" class="secondary" disabled>Export to JSON</button>
+          <input id="import-file-input" type="file" accept="application/json,.json" hidden />
+        </div>
+        <div id="ontology-status" class="status" hidden></div>
+      </section>
+
+      <div id="empty-state" class="panel empty-hint">No ontology yet — click "Generate ontology from documents" above.</div>
+
+      <div id="editor-area" hidden>
+        <div id="status-banner" class="status" hidden></div>
+
+        <section class="panel">
+          <h2>Node labels</h2>
+          <div id="labels-container"></div>
+          <button id="add-label-btn" class="secondary">+ Add label</button>
+        </section>
+
+        <section class="panel">
+          <h2>Relationship types</h2>
+          <div id="rels-container"></div>
+          <button id="add-rel-btn" class="secondary">+ Add relationship type</button>
+        </section>
+
         <div class="actions">
-          <button id="add-paste-btn">Add pasted document</button>
+          <button id="reset-btn" class="secondary" hidden>Reset to draft (edit again)</button>
+          <button id="save-btn" class="secondary">Save changes</button>
+          <button id="approve-btn">Approve ontology</button>
+          <button id="ontology-continue-btn" hidden>Continue to Extraction →</button>
         </div>
       </div>
+    </div>
 
-      <div class="field">
-        <label for="file-input">Or upload .md file(s)</label>
-        <input id="file-input" type="file" accept=".md,text/markdown,text/plain" multiple />
-        <div class="actions">
-          <button id="add-file-btn" class="secondary">Add uploaded file(s)</button>
+    <div id="view-extraction" class="view" hidden>
+      <section class="panel">
+        <h2>Content to extract from</h2>
+        <div class="field">
+          <label for="extraction-content">Paste markdown content</label>
+          <textarea id="extraction-content" placeholder="# Paste content to extract entities and relationships from..."></textarea>
         </div>
-      </div>
 
-      <div id="status" class="status" hidden></div>
-    </section>
+        <div class="field">
+          <label for="extraction-file-input">Or upload .md file(s)</label>
+          <input id="extraction-file-input" type="file" accept=".md,text/markdown,text/plain" multiple />
+          <div class="actions" style="justify-content: flex-start; margin-top: 8px">
+            <button id="load-files-btn" class="secondary">Load file(s) into content</button>
+          </div>
+        </div>
 
-    <section class="panel">
-      <h2>Documents added</h2>
-      <div id="document-list"></div>
-    </section>
+        <div class="row">
+          <div class="field">
+            <label for="entity-method">Entity extraction method</label>
+            <select id="entity-method"></select>
+          </div>
+          <div class="field">
+            <button id="extract-entities-btn">Extract entities</button>
+          </div>
+        </div>
 
-    <div class="actions">
-      <button id="continue-btn" disabled>Continue to Ontology →</button>
+        <div class="row">
+          <div class="field">
+            <label for="rel-model">Relationship extraction model</label>
+            <select id="rel-model"></select>
+          </div>
+          <div class="field">
+            <button id="extract-rels-btn" disabled>Extract relationships</button>
+          </div>
+        </div>
+
+        <div id="unmapped-note" class="status status-info" hidden></div>
+        <div id="extraction-status" class="status" hidden></div>
+      </section>
+
+      <section class="panel">
+        <h2>Entities</h2>
+        <table id="entities-table">
+          <thead>
+            <tr><th>Text</th><th>Label</th><th>Method</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </section>
+
+      <section class="panel">
+        <h2>Relationships</h2>
+        <table id="rels-table">
+          <thead>
+            <tr><th>Source</th><th>Type</th><th>Target</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </section>
+
+      <section class="panel">
+        <div class="card-row" style="justify-content: space-between">
+          <h2 style="margin: 0">Knowledge graph (JSON)</h2>
+          <button id="export-graph-btn" class="secondary" disabled>Export graph JSON</button>
+        </div>
+        <pre id="graph-json">{}</pre>
+      </section>
     </div>
   </main>
 
-  <script type="module" src="js/home.js"></script>
+  <script type="module" src="js/app.js"></script>
 </body>
 </html>
