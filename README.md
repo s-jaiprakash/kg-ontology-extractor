@@ -7,9 +7,10 @@ A knowledge-graph ontology and entity/relationship extraction tool.
    by a citation into the source text) from your documents using an LLM, edit it, and approve it.
    You can also export the ontology to a JSON file or import one (e.g. hand-authored, or
    exported from another run) in place of generating it.
-3. **Extraction** — paste content, extract entities (via the LLM or a local spaCy NER pipeline)
-   and relationships constrained to the approved ontology, and view the resulting knowledge
-   graph as JSON and as a table.
+3. **Extraction** — paste content or upload new `.md` file(s), extract entities (via the LLM or
+   a local spaCy NER pipeline) and relationships constrained to the approved ontology, and view
+   the resulting knowledge graph as JSON and as a table. The graph can be exported to a JSON
+   file as well.
 
 Backend: Python + FastAPI (serves the API and the static frontend). Frontend: plain HTML/CSS +
 TypeScript compiled with `tsc` (no framework, no bundler). Data is persisted as flat JSON files

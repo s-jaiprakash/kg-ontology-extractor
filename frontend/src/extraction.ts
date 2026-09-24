@@ -3,10 +3,13 @@ import { assertOntologyApproved, showStatus } from "./state.js";
 import { Entity, KnowledgeGraphOut, Relationship } from "./types.js";
 
 const contentInput = document.getElementById("extraction-content") as HTMLTextAreaElement;
+const fileInput = document.getElementById("extraction-file-input") as HTMLInputElement;
+const loadFilesBtn = document.getElementById("load-files-btn") as HTMLButtonElement;
 const entityMethodSelect = document.getElementById("entity-method") as HTMLSelectElement;
 const relModelSelect = document.getElementById("rel-model") as HTMLSelectElement;
 const extractEntitiesBtn = document.getElementById("extract-entities-btn") as HTMLButtonElement;
 const extractRelsBtn = document.getElementById("extract-rels-btn") as HTMLButtonElement;
+const exportGraphBtn = document.getElementById("export-graph-btn") as HTMLButtonElement;
 const statusEl = document.getElementById("status") as HTMLElement;
 const entitiesTableBody = document.querySelector("#entities-table tbody") as HTMLElement;
 const relsTableBody = document.querySelector("#rels-table tbody") as HTMLElement;
@@ -14,6 +17,7 @@ const graphJson = document.getElementById("graph-json") as HTMLElement;
 const unmappedNote = document.getElementById("unmapped-note") as HTMLElement;
 
 let lastEntities: Entity[] = [];
+let lastGraph: KnowledgeGraphOut | null = null;
 
 function escapeHtml(text: string): string {
   const div = document.createElement("div");
@@ -61,8 +65,38 @@ function renderRelationships(relationships: Relationship[], entities: Entity[]):
 }
 
 function renderGraph(graph: KnowledgeGraphOut): void {
+  lastGraph = graph;
+  exportGraphBtn.disabled = false;
   graphJson.textContent = JSON.stringify(graph, null, 2);
 }
+
+loadFilesBtn.addEventListener("click", async () => {
+  const files = fileInput.files;
+  if (!files || files.length === 0) {
+    showStatus(statusEl, "Choose one or more .md files first.", "error");
+    return;
+  }
+  const parts = await Promise.all(
+    Array.from(files).map(async (file) => `<!-- ${file.name} -->\n${await file.text()}`)
+  );
+  const combined = parts.join("\n\n---\n\n");
+  contentInput.value = contentInput.value.trim()
+    ? `${contentInput.value.trim()}\n\n---\n\n${combined}`
+    : combined;
+  fileInput.value = "";
+  showStatus(statusEl, `Loaded ${files.length} file(s) into the content box.`, "success");
+});
+
+exportGraphBtn.addEventListener("click", () => {
+  if (!lastGraph) return;
+  const blob = new Blob([JSON.stringify(lastGraph, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "knowledge-graph.json";
+  a.click();
+  URL.revokeObjectURL(url);
+});
 
 extractEntitiesBtn.addEventListener("click", async () => {
   const content = contentInput.value.trim();
@@ -75,6 +109,10 @@ extractEntitiesBtn.addEventListener("click", async () => {
     const method = entityMethodSelect.value as "llm" | "ner";
     const result = await api.extractEntities(content, method);
     lastEntities = result.entities;
+    lastGraph = null;
+    exportGraphBtn.disabled = true;
+    relsTableBody.innerHTML = "";
+    graphJson.textContent = "{}";
     renderEntities(result.entities);
     unmappedNote.hidden = result.unmapped_ner_labels.length === 0;
     unmappedNote.textContent = result.unmapped_ner_labels.length

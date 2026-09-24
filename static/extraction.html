@@ -24,6 +24,14 @@
         <textarea id="extraction-content" placeholder="# Paste content to extract entities and relationships from..."></textarea>
       </div>
 
+      <div class="field">
+        <label for="extraction-file-input">Or upload .md file(s)</label>
+        <input id="extraction-file-input" type="file" accept=".md,text/markdown,text/plain" multiple />
+        <div class="actions" style="justify-content: flex-start; margin-top: 8px">
+          <button id="load-files-btn" class="secondary">Load file(s) into content</button>
+        </div>
+      </div>
+
       <div class="row">
         <div class="field">
           <label for="entity-method">Entity extraction method</label>
@@ -69,7 +77,10 @@
     </section>
 
     <section class="panel">
-      <h2>Knowledge graph (JSON)</h2>
+      <div class="card-row" style="justify-content: space-between">
+        <h2 style="margin: 0">Knowledge graph (JSON)</h2>
+        <button id="export-graph-btn" class="secondary" disabled>Export graph JSON</button>
+      </div>
       <pre id="graph-json">{}</pre>
     </section>
   </main>
